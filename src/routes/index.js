@@ -19,15 +19,14 @@ router.post('/api/upload', upload.single('file'), async (ctx) => {
     ctx.body = { error: 'No file uploaded' };
     return;
   }
-  try {
-    await generateThumbnail(file.path, path.join(THUMBNAIL_DIR, file.filename));
-  } catch (err) {
-    console.error('[thumbnail] failed:', err.message);
-  }
+  const thumbResult = await generateThumbnail(file.path, path.join(THUMBNAIL_DIR, file.filename));
   ctx.body = {
     filename: file.filename,
     size: file.size,
     url: `/api/files/${file.filename}`,
+    thumbnail: thumbResult.success
+      ? { url: `/api/thumbnails/${file.filename}` }
+      : { error: thumbResult.error },
   };
 });
 
@@ -56,6 +55,17 @@ router.get('/api/files/:filename', async (ctx) => {
     return;
   }
   ctx.attachment(ctx.params.filename);
+  ctx.type = path.extname(ctx.params.filename);
+  ctx.body = fs.createReadStream(filePath);
+});
+
+router.get('/api/thumbnails/:filename', async (ctx) => {
+  const filePath = path.join(THUMBNAIL_DIR, ctx.params.filename);
+  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+    ctx.status = 404;
+    ctx.body = { error: 'Thumbnail not found' };
+    return;
+  }
   ctx.type = path.extname(ctx.params.filename);
   ctx.body = fs.createReadStream(filePath);
 });
