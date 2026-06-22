@@ -20,9 +20,11 @@
   },
   "homepage": "https://github.com/alram1244787338/solo-koa-file-upload-31#readme",
   "dependencies": {
+    "@koa/multer": "^4.0.0",
     "koa": "^3.2.1",
     "koa-bodyparser": "^4.4.1",
     "koa-router": "^14.0.0",
-    "multer": "^2.2.0"
+    "multer": "^2.2.0",
+    "sharp": "^0.35.2"
   }
 }
